@@ -35,6 +35,11 @@ namespace elasticsearch_loadtest_app
 
 			if (args.Length > 0)
 				SetUserDefiniedParameters(args);
+
+			var elasticsearchLoadTester = new ElasticSearchLoadTester(_host, _indexName, _typeName, int.Parse(_maxThreads), _dataPath,
+			                                                          int.Parse(_batchSize), _shards, _replicas, _refreshInterval);
+
+			elasticsearchLoadTester.RunTest();
 		}
 
 		private static void SetDefaultParameters()

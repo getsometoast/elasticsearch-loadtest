@@ -14,19 +14,20 @@ namespace elasticsearch_loadtest_app
 		private static string _shards;
 		private static string _replicas;
 		private static string _refreshInterval;
+        private static bool _dropExistingIndex;
 
 		// #######################################################
 		// 
 		// Available Options: 
-		//	/host: host address e.g. http://localhost:9200
-		//	/index-name: index name e.g. tweet
-		//	/type-name: type name e.g. type1
-		//	/max-threads: maximum threads for parallel loop
-		//	/data-path: file path to a data file to use as the document in the load test
-		//	/batch-size: size of a bulk indexing request
-		//	/shards: initial number of shards in the index
-		//	/replicas: initial number of replicas
-		//	/refresh-interval: initial index refresh interval
+		//	/host= host address e.g. http://localhost:9200
+		//	/index-name= index name e.g. tweet
+		//	/type-name= type name e.g. type1
+		//	/max-threads= maximum threads for parallel loop
+		//	/data-path= file path to a data file to use as the document in the load test
+		//	/batch-size= size of a bulk indexing request
+		//	/shards= initial number of shards in the index
+		//	/replicas= initial number of replicas
+		//	/refresh-interval= initial index refresh interval
 		// 
 		// #######################################################
 		static void Main(string[] args)
@@ -37,7 +38,7 @@ namespace elasticsearch_loadtest_app
 				SetUserDefiniedParameters(args);
 
 			var elasticsearchLoadTester = new ElasticSearchLoadTester(_host, _indexName, _typeName, int.Parse(_maxThreads), _dataPath,
-			                                                          int.Parse(_batchSize), _shards, _replicas, _refreshInterval);
+			                                                          int.Parse(_batchSize), _shards, _replicas, _refreshInterval, _dropExistingIndex);
 
 			elasticsearchLoadTester.RunTest();
 		}
@@ -53,6 +54,7 @@ namespace elasticsearch_loadtest_app
 			_shards = ConfigurationManager.AppSettings["Default.Shards"];
 			_replicas = ConfigurationManager.AppSettings["Default.Replicas"];
 			_refreshInterval = ConfigurationManager.AppSettings["Default.RefreshInterval"];
+            _dropExistingIndex = false;
 		}
 
 		private static void SetUserDefiniedParameters(string[] args)
@@ -61,7 +63,7 @@ namespace elasticsearch_loadtest_app
 			
 			foreach (var arg in args)
 			{
-				var argValArray = arg.Split(':');
+				var argValArray = arg.Split('=');
 				arguments.Add(argValArray[0], argValArray[1]);
 			}
 
@@ -96,6 +98,9 @@ namespace elasticsearch_loadtest_app
 					case "/refresh-interval":
 						_refreshInterval = argument.Value;
 						break;
+                    case "/drop-existing":
+                        _dropExistingIndex = bool.Parse(argument.Value);
+                        break;
 					default:
 						break;
 				}

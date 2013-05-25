@@ -57,16 +57,35 @@ namespace elasticsearch_loadtest_app
 
             using (var webClient = new WebClient())
             {
-                webClient.UploadString(uri, "DELETE", string.Empty);
+                try
+                {
+                    webClient.UploadString(uri, "DELETE", string.Empty);
+                }
+                catch (WebException)
+                {
+                }
             }
         }
 
 		private void SetupElasticsearchIndex()
 		{
             var settingsTemplate = File.ReadAllText(ConfigurationManager.AppSettings["Index.Template.Settings"]);
+            var uri = string.Empty;
+            var shards = string.Empty;
 
-            var data = string.Format(settingsTemplate, _shards, _replicas, _refreshInterval);
-            var uri = string.Format("{0}/{1}", _host, _indexName);
+            if (_dropExistingIndex)
+            {
+                shards = string.Format("\"number_of_shards\" : \"{0}\",", _shards);
+                uri = string.Format("{0}/{1}", _host, _indexName);
+            }
+            else
+                uri = string.Format("{0}/{1}/_settings", _host, _indexName);
+            
+            var replicas = string.Format("\"number_of_replicas\" : \"{0}\",", _replicas);
+            var refresh = string.Format("\"refresh_interval\" : \"{0}\"", _refreshInterval);
+
+            var settingsBody = string.IsNullOrEmpty(shards) ? replicas + refresh : shards + replicas + refresh;
+            var data = string.Format(settingsTemplate, settingsBody);
 
             using (var webClient = new WebClient())
             {

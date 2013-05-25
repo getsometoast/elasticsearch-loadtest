@@ -72,7 +72,7 @@ namespace elasticsearch_loadtest_app
 			_replicas = ConfigurationManager.AppSettings["Default.Replicas"];
 			_refreshInterval = ConfigurationManager.AppSettings["Default.RefreshInterval"];
             _dropExistingIndex = false;
-            _totalDocuments = 10000000;
+            _totalDocuments = 1000000;
 		}
 
 		private static void SetUserDefiniedParameters(string[] args)

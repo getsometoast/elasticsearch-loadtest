@@ -45,7 +45,7 @@ namespace elasticsearch_loadtest_app
             var key = ConsoleKey.Y;
             while(key == ConsoleKey.Y){
                 Console.WriteLine("==================================================");
-                Console.WriteLine("Begining load test...");
+                Console.WriteLine("Running load test...");
 			    elasticsearchLoadTester.RunTest();
                 Console.WriteLine("Run complete.");
                 Console.WriteLine("Inserted: {0} documents", _totalDocuments);

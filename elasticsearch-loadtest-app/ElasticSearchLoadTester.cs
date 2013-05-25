@@ -53,26 +53,25 @@ namespace elasticsearch_loadtest_app
 
         private void DropExistingIndex()
         {
-            var deleteTemplate = File.ReadAllText(ConfigurationManager.AppSettings["Index.Template.Delete"]);
-            
-            var data = string.Format(deleteTemplate, _indexName);
             var uri = string.Format("{0}/{1}/", _host, _indexName);
 
-            // TODO - do an -XDELETE to the uri
+            using (var webClient = new WebClient())
+            {
+                webClient.UploadString(uri, "DELETE", string.Empty);
+            }
         }
 
 		private void SetupElasticsearchIndex()
 		{
-            //TODO - this needs to be a put.
-            //var settingsTemplate = File.ReadAllText(ConfigurationManager.AppSettings["Index.Template.Settings"]);
+            var settingsTemplate = File.ReadAllText(ConfigurationManager.AppSettings["Index.Template.Settings"]);
 
-            //var data = string.Format(settingsTemplate, _indexName, _shards, _replicas, _refreshInterval);
-            //var uri = string.Format("{0}/{1}/_settings", _host, _indexName);
+            var data = string.Format(settingsTemplate, _shards, _replicas, _refreshInterval);
+            var uri = string.Format("{0}/{1}", _host, _indexName);
 
-            //using (var webClient = new WebClient())
-            //{
-            //    webClient.UploadString(uri, data);
-            //}
+            using (var webClient = new WebClient())
+            {
+                webClient.UploadString(uri, "PUT", data);
+            }
 		}
 
 		private void HitElasticsearchWithSomeLoad(string data)

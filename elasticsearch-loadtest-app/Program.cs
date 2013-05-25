@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Configuration;
+using System;
 
 namespace elasticsearch_loadtest_app
 {
@@ -15,6 +16,7 @@ namespace elasticsearch_loadtest_app
 		private static string _replicas;
 		private static string _refreshInterval;
         private static bool _dropExistingIndex;
+        private static int _totalDocuments;
 
 		// #######################################################
 		// 
@@ -37,10 +39,25 @@ namespace elasticsearch_loadtest_app
 			if (args.Length > 0)
 				SetUserDefiniedParameters(args);
 
-			var elasticsearchLoadTester = new ElasticSearchLoadTester(_host, _indexName, _typeName, int.Parse(_maxThreads), _dataPath,
-			                                                          int.Parse(_batchSize), _shards, _replicas, _refreshInterval, _dropExistingIndex);
+            var elasticsearchLoadTester = new ElasticSearchLoadTester(_host, _indexName, _typeName, int.Parse(_maxThreads), _dataPath,
+                                                                      int.Parse(_batchSize), _shards, _replicas, _refreshInterval, _dropExistingIndex, _totalDocuments);
 
-			elasticsearchLoadTester.RunTest();
+            var key = ConsoleKey.Y;
+            while(key == ConsoleKey.Y){
+                Console.WriteLine("==================================================");
+                Console.WriteLine("Begining load test...");
+			    elasticsearchLoadTester.RunTest();
+                Console.WriteLine("Run complete.");
+                Console.WriteLine("Inserted: {0} documents", _totalDocuments);
+                Console.WriteLine("Time taken: {0}", elasticsearchLoadTester.TimeTaken.ToString());
+                Console.WriteLine("==================================================");
+                Console.WriteLine();
+                Console.WriteLine("Would you like to run the load test again? y/n");
+                key = Console.ReadKey().Key;
+                Console.WriteLine();
+            }
+            Console.WriteLine("Press any key to exit");
+            Console.ReadKey();
 		}
 
 		private static void SetDefaultParameters()
@@ -55,6 +72,7 @@ namespace elasticsearch_loadtest_app
 			_replicas = ConfigurationManager.AppSettings["Default.Replicas"];
 			_refreshInterval = ConfigurationManager.AppSettings["Default.RefreshInterval"];
             _dropExistingIndex = false;
+            _totalDocuments = 10000000;
 		}
 
 		private static void SetUserDefiniedParameters(string[] args)
@@ -100,6 +118,9 @@ namespace elasticsearch_loadtest_app
 						break;
                     case "/drop-existing":
                         _dropExistingIndex = bool.Parse(argument.Value);
+                        break;
+                    case "/total-documents":
+                        _totalDocuments = int.Parse(argument.Value);
                         break;
 					default:
 						break;

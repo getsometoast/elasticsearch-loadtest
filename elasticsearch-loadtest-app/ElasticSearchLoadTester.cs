@@ -20,8 +20,9 @@ namespace elasticsearch_loadtest_app
 		private readonly string _replicas;
 		private readonly string _refreshInterval;
         private readonly bool _dropExistingIndex;
+        private readonly int _totalDocuments;
 
-		public ElasticSearchLoadTester(string host, string indexName, string typeName, int maxThreads, string dataPath, int batchSize, string shards, string replicas, string refreshInterval, bool dropExistingIndex)
+		public ElasticSearchLoadTester(string host, string indexName, string typeName, int maxThreads, string dataPath, int batchSize, string shards, string replicas, string refreshInterval, bool dropExistingIndex, int totalDocuments)
 		{
 			_host = host;
 			_indexName = indexName;
@@ -32,6 +33,8 @@ namespace elasticsearch_loadtest_app
 			_shards = shards;
 			_replicas = replicas;
 			_refreshInterval = refreshInterval;
+            _totalDocuments = totalDocuments;
+            _dropExistingIndex = dropExistingIndex;
 		}
 
 		public TimeSpan TimeTaken { get; private set; }
@@ -53,25 +56,29 @@ namespace elasticsearch_loadtest_app
             var deleteTemplate = File.ReadAllText(ConfigurationManager.AppSettings["Index.Template.Delete"]);
             
             var data = string.Format(deleteTemplate, _indexName);
-            var uri = _host + _indexName + "_settings";
+            var uri = string.Format("{0}/{1}/", _host, _indexName);
+
+            // TODO - do an -XDELETE to the uri
         }
 
 		private void SetupElasticsearchIndex()
 		{
-            var settingsTemplate = File.ReadAllText(ConfigurationManager.AppSettings["Index.Template.Settings"]);
+            //TODO - this needs to be a put.
+            //var settingsTemplate = File.ReadAllText(ConfigurationManager.AppSettings["Index.Template.Settings"]);
 
-            var data = string.Format(settingsTemplate, _indexName, _shards, _replicas, _refreshInterval);
-			var uri = _host + _indexName + "_settings";
+            //var data = string.Format(settingsTemplate, _indexName, _shards, _replicas, _refreshInterval);
+            //var uri = string.Format("{0}/{1}/_settings", _host, _indexName);
 
-			using (var webClient = new WebClient())
-			{
-				webClient.UploadString(uri, data);
-			}
+            //using (var webClient = new WebClient())
+            //{
+            //    webClient.UploadString(uri, data);
+            //}
 		}
 
 		private void HitElasticsearchWithSomeLoad(string data)
 		{
-			var uri = _host + _indexName + "_bulk";
+            var uri = string.Format("{0}/{1}/_bulk", _host, _indexName);
+            var to = _totalDocuments / _batchSize;
 
 			var options = new ParallelOptions
 				{
@@ -79,7 +86,7 @@ namespace elasticsearch_loadtest_app
 				};
 
 			var timer = Stopwatch.StartNew();
-			Parallel.For(0, 100, options, counter =>
+			Parallel.For(0, to, options, counter =>
 				{
 					using (var webClient = new WebClient())
 					{
@@ -92,12 +99,14 @@ namespace elasticsearch_loadtest_app
 
 		private string BuildTestData()
 		{
+            var bulkHeader = string.Format("{{ \"index\" : {{ \"_index\" : \"{0}\", \"_type\" : \"{1}\" }} }}", _indexName, _typeName);
+
 			var testDocument = File.ReadAllText(_dataPath);
 			var testData = new StringBuilder();
 
 			for (int i = 0; i < _batchSize; i ++)
 			{
-				testData.AppendLine("");
+				testData.AppendLine(bulkHeader);
 				testData.AppendLine(testDocument);
 			}
 

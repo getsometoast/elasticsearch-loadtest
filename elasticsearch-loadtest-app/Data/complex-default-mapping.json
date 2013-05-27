@@ -1,0 +1,118 @@
+{
+  "myindex" : {
+    "mytype" : {
+      "properties" : {
+        "formats" : {
+          "dynamic" : "true",
+          "properties" : {
+            "bitRate" : {
+              "type" : "string"
+            },
+            "fileFormat" : {
+              "type" : "string"
+            },
+            "id" : {
+              "type" : "long"
+            }
+          }
+        },
+        "release" : {
+          "dynamic" : "true",
+          "properties" : {
+            "artist" : {
+              "dynamic" : "true",
+              "properties" : {
+                "appearsAs" : {
+                  "type" : "string"
+                },
+                "id" : {
+                  "type" : "long"
+                },
+                "name" : {
+                  "type" : "string"
+                },
+                "slug" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "id" : {
+              "type" : "long"
+            },
+            "releaseDate" : {
+              "type" : "date",
+              "format" : "dateOptionalTime"
+            },
+            "slug" : {
+              "type" : "string"
+            },
+            "title" : {
+              "type" : "string"
+            },
+            "type" : {
+              "type" : "string"
+            },
+            "year" : {
+              "type" : "string"
+            }
+          }
+        },
+        "source" : {
+          "dynamic" : "true",
+          "properties" : {
+            "date" : {
+              "type" : "date",
+              "format" : "dateOptionalTime"
+            },
+            "id" : {
+              "type" : "long"
+            },
+            "type" : {
+              "type" : "string"
+            }
+          }
+        },
+        "track" : {
+          "dynamic" : "true",
+          "properties" : {
+            "artist" : {
+              "dynamic" : "true",
+              "properties" : {
+                "appearsAs" : {
+                  "type" : "string"
+                },
+                "id" : {
+                  "type" : "long"
+                },
+                "name" : {
+                  "type" : "string"
+                },
+                "slug" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "duration" : {
+              "type" : "long"
+            },
+            "id" : {
+              "type" : "long"
+            },
+            "title" : {
+              "type" : "string"
+            },
+            "trackNumber" : {
+              "type" : "long"
+            },
+            "type" : {
+              "type" : "string"
+            }
+          }
+        },
+        "userId" : {
+          "type" : "long"
+        }
+      }
+    }
+  }
+}

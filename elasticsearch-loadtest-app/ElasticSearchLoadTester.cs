@@ -4,7 +4,6 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using System.Configuration;
 
 namespace elasticsearch_loadtest_app
 {
@@ -96,7 +95,7 @@ namespace elasticsearch_loadtest_app
 
         private void SetupIndex()
         {
-            var settingsTemplate = File.ReadAllText(ConfigurationManager.AppSettings["Index.Template.Settings"]);
+            var settingsTemplate = File.ReadAllText("Data/index-settings-template.json");
             var uri = string.Format("{0}/{1}", _host, _indexName);
 
             var data = string.Format(settingsTemplate, _shards, _replicas);

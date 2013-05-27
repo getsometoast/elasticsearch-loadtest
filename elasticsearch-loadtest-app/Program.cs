@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Configuration;
-using System;
+﻿using System;
+using System.Collections.Generic;
 
 namespace elasticsearch_loadtest_app
 {
@@ -16,20 +15,6 @@ namespace elasticsearch_loadtest_app
         private static int _totalDocuments;
         private static string _type;
 
-		// #######################################################
-		// 
-		// Available Options: 
-		//	/host= host address e.g. http://localhost:9200
-		//	/index-name= index name e.g. tweet
-		//	/type-name= type name e.g. type1
-		//	/max-threads= maximum threads for parallel loop
-		//	/data-path= file path to a data file to use as the document in the load test
-		//	/batch-size= size of a bulk indexing request
-		//	/shards= initial number of shards in the index
-		//	/replicas= initial number of replicas
-		//	/refresh-interval= initial index refresh interval
-		// 
-		// #######################################################
 		static void Main(string[] args)
 		{
 			SetDefaultParameters();
@@ -60,13 +45,13 @@ namespace elasticsearch_loadtest_app
 
 		private static void SetDefaultParameters()
 		{
-			_maxThreads = ConfigurationManager.AppSettings["Default.MaxThreads"];
-			_indexName = ConfigurationManager.AppSettings["Default.IndexName"];
-			_host = ConfigurationManager.AppSettings["Default.Host"];
-			_dataPath = ConfigurationManager.AppSettings["Default.DataPath"];
-			_batchSize = ConfigurationManager.AppSettings["Default.BatchSize"];
-			_shards = ConfigurationManager.AppSettings["Default.Shards"];
-			_replicas = ConfigurationManager.AppSettings["Default.Replicas"];
+            _maxThreads = "16";
+            _indexName = "myindex";
+            _host = "http://localhost:9200";
+			_dataPath = "Data/simple-example.json";
+			_batchSize = "500";
+			_shards = "1";
+			_replicas = "0";
             _type = "mytype";
             _totalDocuments = 1000000;
             _customMapping = string.Empty;

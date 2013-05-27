@@ -40,7 +40,7 @@ namespace elasticsearch_loadtest_app
 				SetUserDefiniedParameters(args);
 
             var elasticsearchLoadTester = new ElasticSearchLoadTester(_host, _indexName, _typeName, int.Parse(_maxThreads), _dataPath,
-                                                                      int.Parse(_batchSize), _shards, _replicas, _refreshInterval, _dropExistingIndex, _totalDocuments);
+                                                                      int.Parse(_batchSize), _shards, _replicas, _refreshInterval, _dropExistingIndex, _totalDocuments, _customMapping);
 
             var key = ConsoleKey.Y;
             while(key == ConsoleKey.Y){
@@ -73,6 +73,7 @@ namespace elasticsearch_loadtest_app
 			_refreshInterval = ConfigurationManager.AppSettings["Default.RefreshInterval"];
             _dropExistingIndex = false;
             _totalDocuments = 1000000;
+            _customMapping = string.Empty;
 		}
 
 		private static void SetUserDefiniedParameters(string[] args)
@@ -122,10 +123,15 @@ namespace elasticsearch_loadtest_app
                     case "/total-documents":
                         _totalDocuments = int.Parse(argument.Value);
                         break;
+                    case "/custom-mapping":
+                        _customMapping = argument.Value;
+                        break;
 					default:
 						break;
 				}
 			}
 		}
-	}
+
+        public static string _customMapping { get; set; }
+    }
 }

@@ -12,30 +12,24 @@ namespace elasticsearch_loadtest_app
     {
         private readonly string _host;
         private readonly string _indexName;
-        private readonly string _typeName;
         private readonly int _maxThreads;
         private readonly string _dataPath;
         private readonly int _batchSize;
         private readonly string _shards;
         private readonly string _replicas;
-        private readonly string _refreshInterval;
-        private readonly bool _dropExistingIndex;
         private readonly int _totalDocuments;
         private readonly string _customMapping;
 
-        public ElasticSearchLoadTester(string host, string indexName, string typeName, int maxThreads, string dataPath, int batchSize, string shards, string replicas, string refreshInterval, bool dropExistingIndex, int totalDocuments, string customMapping)
+        public ElasticSearchLoadTester(string host, string indexName, int maxThreads, string dataPath, int batchSize, string shards, string replicas, int totalDocuments, string customMapping)
         {
             _host = host;
             _indexName = indexName;
-            _typeName = typeName;
             _maxThreads = maxThreads;
             _dataPath = dataPath;
             _batchSize = batchSize;
             _shards = shards;
             _replicas = replicas;
-            _refreshInterval = refreshInterval;
             _totalDocuments = totalDocuments;
-            _dropExistingIndex = dropExistingIndex;
             _customMapping = customMapping;
         }
 
@@ -43,27 +37,31 @@ namespace elasticsearch_loadtest_app
 
         public void RunTest()
         {
-            var data = BuildTestData();
+            var testData = BuildTestData();
 
-            // if index exists, delete it
-            // setup index with desired parameters
-            // setup load test settings (refresh interval, merge frequency)
-            // if mapping supplied, setup mapping
+            DropExistingIndex();
 
-            // perform load test
+            SetupIndex();
 
-            // reset index refresh rate, merge frequency
-
-
-            if (_dropExistingIndex)
-                DropExistingIndex();
-
-            SetupElasticsearchIndex();
+            SetRefreshInterval("-1");
 
             if (!string.IsNullOrEmpty(_customMapping))
                 SetupDocumentMapping();
 
-            HitElasticsearchWithSomeLoad(data);
+            HitElasticsearchWithSomeLoad(testData);
+
+            SetRefreshInterval("1s");
+        }
+
+        private void SetRefreshInterval(string interval)
+        {
+            var uri = string.Format("{0}/{1}/_settings", _host, _indexName);
+            var data = string.Format(File.ReadAllText("Data/index-bulk-settings-template"), interval);
+
+            using (var webClient = new WebClient())
+            {
+                webClient.UploadString(uri, "PUT", data);
+            }
         }
 
         private void SetupDocumentMapping()
@@ -73,7 +71,7 @@ namespace elasticsearch_loadtest_app
 
             using (var webClient = new WebClient())
             {
-                webClient.UploadString(uri, data);
+                webClient.UploadString(uri, "PUT", data);
             }
         }
 
@@ -89,29 +87,17 @@ namespace elasticsearch_loadtest_app
                 }
                 catch (WebException)
                 {
+                    // index might not exist yet but we don't care as will create it in the next step.
                 }
             }
         }
 
-        private void SetupElasticsearchIndex()
+        private void SetupIndex()
         {
             var settingsTemplate = File.ReadAllText(ConfigurationManager.AppSettings["Index.Template.Settings"]);
-            var uri = string.Empty;
-            var shards = string.Empty;
+            var uri = string.Format("{0}/{1}", _host, _indexName);
 
-            if (_dropExistingIndex)
-            {
-                shards = string.Format("\"number_of_shards\" : \"{0}\",", _shards);
-                uri = string.Format("{0}/{1}", _host, _indexName);
-            }
-            else
-                uri = string.Format("{0}/{1}/_settings", _host, _indexName);
-
-            var replicas = string.Format("\"number_of_replicas\" : \"{0}\",", _replicas);
-            var refresh = string.Format("\"refresh_interval\" : \"{0}\"", _refreshInterval);
-
-            var settingsBody = string.IsNullOrEmpty(shards) ? replicas + refresh : shards + replicas + refresh;
-            var data = string.Format(settingsTemplate, settingsBody);
+            var data = string.Format(settingsTemplate, _shards, _replicas);
 
             using (var webClient = new WebClient())
             {
@@ -143,7 +129,7 @@ namespace elasticsearch_loadtest_app
 
         private string BuildTestData()
         {
-            var bulkHeader = string.Format("{{ \"index\" : {{ \"_index\" : \"{0}\", \"_type\" : \"{1}\" }} }}", _indexName, _typeName);
+            var bulkHeader = string.Format("{{ \"index\" : {{ \"_index\" : \"{0}\" }} }}", _indexName);
 
             var testDocument = File.ReadAllText(_dataPath);
             var testData = new StringBuilder();

@@ -7,15 +7,12 @@ namespace elasticsearch_loadtest_app
 	class Program
 	{
 		private static string _maxThreads;
-		private static string _typeName;
 		private static string _indexName;
 		private static string _host;
 		private static string _dataPath;
 		private static string _batchSize;
 		private static string _shards;
 		private static string _replicas;
-		private static string _refreshInterval;
-        private static bool _dropExistingIndex;
         private static int _totalDocuments;
 
 		// #######################################################
@@ -39,8 +36,8 @@ namespace elasticsearch_loadtest_app
 			if (args.Length > 0)
 				SetUserDefiniedParameters(args);
 
-            var elasticsearchLoadTester = new ElasticSearchLoadTester(_host, _indexName, _typeName, int.Parse(_maxThreads), _dataPath,
-                                                                      int.Parse(_batchSize), _shards, _replicas, _refreshInterval, _dropExistingIndex, _totalDocuments, _customMapping);
+            var elasticsearchLoadTester = new ElasticSearchLoadTester(_host, _indexName, int.Parse(_maxThreads), _dataPath,
+                                                                      int.Parse(_batchSize), _shards, _replicas, _totalDocuments, _customMapping);
 
             var key = ConsoleKey.Y;
             while(key == ConsoleKey.Y){
@@ -64,14 +61,11 @@ namespace elasticsearch_loadtest_app
 		{
 			_maxThreads = ConfigurationManager.AppSettings["Default.MaxThreads"];
 			_indexName = ConfigurationManager.AppSettings["Default.IndexName"];
-			_typeName = ConfigurationManager.AppSettings["Default.TypeName"];
 			_host = ConfigurationManager.AppSettings["Default.Host"];
 			_dataPath = ConfigurationManager.AppSettings["Default.DataPath"];
 			_batchSize = ConfigurationManager.AppSettings["Default.BatchSize"];
 			_shards = ConfigurationManager.AppSettings["Default.Shards"];
 			_replicas = ConfigurationManager.AppSettings["Default.Replicas"];
-			_refreshInterval = ConfigurationManager.AppSettings["Default.RefreshInterval"];
-            _dropExistingIndex = false;
             _totalDocuments = 1000000;
             _customMapping = string.Empty;
 		}
@@ -96,9 +90,6 @@ namespace elasticsearch_loadtest_app
 					case "/index-name":
 						_indexName = argument.Value;
 						break;
-					case "/type-name":
-						_typeName = argument.Value;
-						break;
 					case "/max-threads":
 						_maxThreads = argument.Value;
 						break;
@@ -114,12 +105,6 @@ namespace elasticsearch_loadtest_app
 					case "/replicas":
 						_replicas = argument.Value;
 						break;
-					case "/refresh-interval":
-						_refreshInterval = argument.Value;
-						break;
-                    case "/drop-existing":
-                        _dropExistingIndex = bool.Parse(argument.Value);
-                        break;
                     case "/total-documents":
                         _totalDocuments = int.Parse(argument.Value);
                         break;

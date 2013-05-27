@@ -1,5 +1,6 @@
 ﻿{{
 	"index" : {{
-		{0}
+		"number_of_shards": "{0}",
+		"number_of_replicas": "{1}"
 	}}
 }}

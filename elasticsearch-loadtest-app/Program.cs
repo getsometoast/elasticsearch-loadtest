@@ -28,6 +28,18 @@ namespace elasticsearch_loadtest_app
             var key = ConsoleKey.Y;
             while(key == ConsoleKey.Y){
                 Console.WriteLine("==================================================");
+                Console.WriteLine();
+                Console.WriteLine("host: {0}", _host);
+                Console.WriteLine("shards: {0}", _shards);
+                Console.WriteLine("replicas: {0}", _replicas);
+                Console.WriteLine("index: {0}", _indexName);
+                Console.WriteLine("type: {0}", _type);
+                Console.WriteLine("total documents: {0}", _totalDocuments);
+                Console.WriteLine("batch size: {0}", _batchSize);
+                Console.WriteLine("document: {0}", _dataPath);
+                Console.WriteLine("mapping: {0}", _customMapping);
+                Console.WriteLine("threads: {0}", _maxThreads);
+                Console.WriteLine();
                 Console.WriteLine("Running load test...");
 			    elasticsearchLoadTester.RunTest();
                 Console.WriteLine("Run complete.");
@@ -48,13 +60,13 @@ namespace elasticsearch_loadtest_app
             _maxThreads = "16";
             _indexName = "myindex";
             _host = "http://localhost:9200";
-			_dataPath = "Data/simple-example.json";
-			_batchSize = "500";
+			_dataPath = "Data/complex-example.json";
+			_batchSize = "2000";
 			_shards = "1";
 			_replicas = "0";
             _type = "mytype";
-            _totalDocuments = 1000000;
-            _customMapping = string.Empty;
+            _totalDocuments = 10000000;
+            _customMapping = "Data/complex-default-mapping.json";
 		}
 
 		private static void SetUserDefiniedParameters(string[] args)

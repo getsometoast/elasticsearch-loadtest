@@ -1,20 +1,19 @@
 elasticsearch-loadtest
 ======================
 
-App that was put together in about 5 mins to hit elasticsearch with some load...
-
-
-
+A small app I put together to help me test bulk indexing elasticsearch.
 
 <h2>Useage</h2>
+
+bin\Release\elasticsearch-loadtest-app.exe
+
 /host=http://my-host:9200<br>
-/index-name=my-index<br>
-/type-name=my-type<br>
+/index-name=myindex<br>
+/type-name=mytype<br>
 /max-threads=16<br>
-/data-path=Path/to-my-data-file.json<br>
+/data-path=Data/my-data-file.json<br>
 /batch-size=500<br>
 /shards=1<br>
 /replicas=0<br>
-/refresh-interval=-1<br>
-/drop-existing=true<br>
 /total-documents=10000000<br>
+/custom-mapping=Data/custom-mapping.json<br>

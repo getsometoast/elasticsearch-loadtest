@@ -14,6 +14,7 @@ namespace elasticsearch_loadtest_app
 		private static string _shards;
 		private static string _replicas;
         private static int _totalDocuments;
+        private static string _type;
 
 		// #######################################################
 		// 
@@ -37,7 +38,7 @@ namespace elasticsearch_loadtest_app
 				SetUserDefiniedParameters(args);
 
             var elasticsearchLoadTester = new ElasticSearchLoadTester(_host, _indexName, int.Parse(_maxThreads), _dataPath,
-                                                                      int.Parse(_batchSize), _shards, _replicas, _totalDocuments, _customMapping);
+                                                                      int.Parse(_batchSize), _shards, _replicas, _totalDocuments, _customMapping, _type);
 
             var key = ConsoleKey.Y;
             while(key == ConsoleKey.Y){
@@ -66,6 +67,7 @@ namespace elasticsearch_loadtest_app
 			_batchSize = ConfigurationManager.AppSettings["Default.BatchSize"];
 			_shards = ConfigurationManager.AppSettings["Default.Shards"];
 			_replicas = ConfigurationManager.AppSettings["Default.Replicas"];
+            _type = "mytype";
             _totalDocuments = 1000000;
             _customMapping = string.Empty;
 		}
@@ -110,6 +112,9 @@ namespace elasticsearch_loadtest_app
                         break;
                     case "/custom-mapping":
                         _customMapping = argument.Value;
+                        break;
+                    case "/type":
+                        _type = argument.Value;
                         break;
 					default:
 						break;

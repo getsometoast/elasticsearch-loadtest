@@ -19,8 +19,9 @@ namespace elasticsearch_loadtest_app
         private readonly string _replicas;
         private readonly int _totalDocuments;
         private readonly string _customMapping;
+        private readonly string _type;
 
-        public ElasticSearchLoadTester(string host, string indexName, int maxThreads, string dataPath, int batchSize, string shards, string replicas, int totalDocuments, string customMapping)
+        public ElasticSearchLoadTester(string host, string indexName, int maxThreads, string dataPath, int batchSize, string shards, string replicas, int totalDocuments, string customMapping, string type)
         {
             _host = host;
             _indexName = indexName;
@@ -31,6 +32,7 @@ namespace elasticsearch_loadtest_app
             _replicas = replicas;
             _totalDocuments = totalDocuments;
             _customMapping = customMapping;
+            _type = type;
         }
 
         public TimeSpan TimeTaken { get; private set; }
@@ -56,7 +58,7 @@ namespace elasticsearch_loadtest_app
         private void SetRefreshInterval(string interval)
         {
             var uri = string.Format("{0}/{1}/_settings", _host, _indexName);
-            var data = string.Format(File.ReadAllText("Data/index-bulk-settings-template"), interval);
+            var data = string.Format(File.ReadAllText("Data/index-bulk-settings-template.json"), interval);
 
             using (var webClient = new WebClient())
             {
@@ -66,7 +68,7 @@ namespace elasticsearch_loadtest_app
 
         private void SetupDocumentMapping()
         {
-            var uri = string.Format("{0}/{1}/_mapping", _host, _indexName);
+            var uri = string.Format("{0}/{1}/{2}/_mapping", _host, _indexName, _type);
             var data = File.ReadAllText(_customMapping);
 
             using (var webClient = new WebClient())
@@ -107,8 +109,8 @@ namespace elasticsearch_loadtest_app
 
         private void HitElasticsearchWithSomeLoad(string data)
         {
-            var uri = string.Format("{0}/{1}/_bulk", _host, _indexName);
-            var to = _totalDocuments / _batchSize;
+            var uri = string.Format("{0}/{1}/{2}/_bulk", _host, _indexName, _type);
+            var to = (_totalDocuments / _batchSize) == 0 ? 1 : (_totalDocuments / _batchSize);
 
             var options = new ParallelOptions
                 {
@@ -129,7 +131,7 @@ namespace elasticsearch_loadtest_app
 
         private string BuildTestData()
         {
-            var bulkHeader = string.Format("{{ \"index\" : {{ \"_index\" : \"{0}\" }} }}", _indexName);
+            var bulkHeader = string.Format("{{ \"index\" : {{ \"_index\" : \"{0}\", \"_type\" : \"{1}\" }} }}", _indexName, _type);
 
             var testDocument = File.ReadAllText(_dataPath);
             var testData = new StringBuilder();
